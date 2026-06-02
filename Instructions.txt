@@ -1,0 +1,17 @@
+Follow these instructions before compiling:
+
+1. Clone the repository to your machine using:
+   `git clone <repository-url>`
+
+2. Install Visual Studio (not VS Code) and make sure the "Desktop Development with C++" workload is selected during installation.
+
+3. Download and install CMake.
+
+4. Open Visual Studio and select:
+   **File → Open → CMake Project**
+
+   Then navigate to the project directory and select the `CMakeLists.txt` file.
+
+5. Build and run the project. If you encounter any errors, copy the error message and search for it online or ask ChatGPT for assistance :)).
+
+Happy Coding Niqqas
