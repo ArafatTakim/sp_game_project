@@ -1,0 +1,514 @@
+Folder Info:
+
+1. resources:
+	This folder contains all the images, sounds, textures etc for the gameUI
+
+2. src:
+	This folder Contains two important folders : i. platform ii. gameLayer
+	i. platform:
+		This contains main.cpp where the game will be executed(no need to update 		that)
+	ii. gameLayer:
+		This folder contains all the required .cpp and .h hiles for the game to 		develop.
+
+3. thirdparty: 
+	
+	This folder has all the required library including raylib, imgui, fastnoisesimd etc
+
+4. CMakeLists.txt :
+
+	This file contains all the information for the build system (no need to change it 	either)
+
+
+Info about all the files in src/gameLayer :
+
+
+1. gameMain.cpp -> This part contains all the core functions for game to run. The initGame() function is run only once which initializes all the required game data for the game to run.
+The updateGame() function controls the user input and output. In the main.cpp file this function is called in a while loop until the user closes the window so that this function can run continuously.
+The closeGame() function is called immediately after the game is closed to save the game data which I haven't written yet.
+
+2. assetManager.cpp -> this file contains sources of images and textures that will be shown in the game ui for the user while playing
+
+3. blocks.h -> this file contains a struct named Block which is basically the names of the blocks used in the game ui stored in a enum starting with air = 0 and so on. there is also an attribute named type which works like an id for any Block object defing the type of block.
+
+4. buildStrcuts -> this file will contain code for generating different structers like trees, houses, cave etc
+
+5. gameMap -> this file contains a struct named GameMap which is the class for the map of te game having properties - height, width, a vector of mapData and two more methods create() and getBlock()
+The create() method create dthe game map which is called once in initGame()
+The getBlock() method returns the pointer of the Block inside the world containing coordinates x,y;
+
+6. helper -> this file is for convevience. You might add any large code inside it to resuse again.
+
+7. randoStuff -> this file contains three functions- getRandomInt getRandomFloat and getRandomChance. These functions will return random values in the the given range;
+
+8.saveMap -> this is used for saving the game 
+
+9. worldGenerate -> this file is the most important as it will generate the world when a new world is created. it contains only one function generateWorld()
+
+
+
+Game Architecture:
+
+the main.cpp file calls three functions: 
+	1. initGame() for initialization 
+	2.updateGame() in the while loop
+	3. closeGame() to save the data 
+
+
+
+
+
+How The World is Generated:
+
+# World Generation System Overview
+
+## Purpose
+
+The `generateWorld()` function creates the entire game world using procedural generation. It generates:
+
+* Terrain height variation using Perlin noise
+* A random desert biome
+* Dirt, stone, sand, and sandstone layers
+* Trees on grass surfaces
+* Cave systems using random-walk tunnels
+
+---
+
+## World Size
+
+```cpp
+int h = 500;
+int w = 900;
+```
+
+The world is generated with:
+
+* Width = 900 blocks
+* Height = 500 blocks
+
+The map is then created using:
+
+```cpp
+gameMap.create(w, h);
+```
+
+---
+
+## Random Number Generator
+
+```cpp
+std::ranlux24_base rng(seed);
+```
+
+All world generation depends on the provided seed, ensuring the same seed always generates the same world.
+
+---
+
+## Desert Biome Generation
+
+A random desert biome is created every world.
+
+### Step 1: Select desert range
+
+```cpp
+int desertStart = getRandomInt(rng, 10, w - 210);
+int desertEnd = desertStart + getRandomInt(rng, 50, 200);
+```
+
+This determines:
+
+* Where the desert begins
+* How wide the desert will be
+
+Possible desert width:
+
+* Minimum: 50 blocks
+* Maximum: 200 blocks
+
+---
+
+### Step 2: Generate desert hill shape
+
+```cpp
+float maxDesertHeight =
+-(100.0f / (D * D))
+* (x - desertStart)
+* (x - desertEnd)
++ dirtStart;
+```
+
+A parabola is used to create a smooth dune-like shape.
+
+Effects:
+
+* Highest point occurs in the middle of the desert
+* Edges blend smoothly into normal terrain
+
+---
+
+## Noise Generators
+
+Three FastNoiseSIMD generators are created.
+
+### Dirt Noise
+
+```cpp
+PerlinFractal
+Octaves = 3
+Frequency = 0.01
+```
+
+Controls:
+
+* Surface height variation
+
+---
+
+### Stone Noise
+
+```cpp
+PerlinFractal
+Octaves = 4
+Frequency = 0.04
+```
+
+Controls:
+
+* Depth where stone begins
+
+---
+
+### Cave Noise
+
+```cpp
+SimplexFractal
+Octaves = 6
+Frequency = 0.02
+```
+
+Originally intended for cave generation.
+
+A helper function exists:
+
+```cpp
+getCaveNoise(x, y)
+```
+
+Currently cave carving using noise is disabled.
+
+---
+
+## Terrain Layer Generation
+
+For every column:
+
+```cpp
+for (int x = 0; x < w; x++)
+```
+
+Two important heights are calculated:
+
+### Dirt Surface
+
+```cpp
+int dirtHeight =
+dirtStart - 40 * dirtNoise[x];
+```
+
+Controls the ground level.
+
+---
+
+### Stone Layer
+
+```cpp
+int stoneHeight =
+stoneStart - 200 * stoneNoise[x];
+```
+
+Controls where stone begins underground.
+
+---
+
+## Biome Block Selection
+
+Normally:
+
+| Layer            | Block Type |
+| ---------------- | ---------- |
+| Surface          | Grass      |
+| Underground      | Dirt       |
+| Deep Underground | Stone      |
+
+Inside the desert:
+
+| Layer            | Block Type |
+| ---------------- | ---------- |
+| Surface          | Sand       |
+| Underground      | Sand       |
+| Deep Underground | Sandstone  |
+
+This is controlled by:
+
+```cpp
+if (x >= desertStart &&
+    x <= desertEnd &&
+    y <= maxDesertHeight)
+```
+
+---
+
+## Tree Generation
+
+Before generating each column:
+
+```cpp
+bool isTree =
+getRandomChance(rng, 0.067);
+```
+
+Tree spawn chance:
+
+~6.7%
+
+Trees only spawn when:
+
+* Current block is surface grass
+* Not inside desert
+* At least 6 blocks away from previous tree
+
+```cpp
+buildTree(gameMap, x + 1, y);
+```
+
+Tree construction itself is handled in `buildStructs.cpp`.
+
+---
+
+## Cave Generation
+
+Current caves are generated using a random-walk algorithm.
+
+### Cave Count
+
+```cpp
+for (int i = 0; i < 50; i++)
+```
+
+Creates 50 tunnel systems.
+
+---
+
+### Starting Position
+
+```cpp
+startX
+startY
+```
+
+Random underground location.
+
+---
+
+### Tunnel Length
+
+```cpp
+500 - 1500 blocks
+```
+
+Each tunnel performs a random walk.
+
+Every step:
+
+```cpp
+x += random(-1,1);
+y += random(-1,1);
+```
+
+The current block becomes:
+
+```cpp
+Block::air
+```
+
+Result:
+
+* Organic cave tunnels
+* Connected underground spaces
+* Different cave shape every seed
+
+---
+
+## Cave Noise (Unused)
+
+The following code is currently disabled:
+
+```cpp
+if (getCaveNoise(x, y) < 0.3)
+{
+    b.type = Block::air;
+}
+```
+
+If enabled, caves would be generated from noise values instead of random-walk tunnels.
+
+---
+
+## Memory Cleanup
+
+Noise arrays allocated by FastNoiseSIMD are released:
+
+```cpp
+FastNoiseSIMD::FreeNoiseSet(dirtNoise);
+FastNoiseSIMD::FreeNoiseSet(stoneNoise);
+```
+
+This prevents memory leaks.
+
+---
+
+## Generation Order Summary
+
+1. Create world map
+2. Initialize RNG with seed
+3. Create random desert biome
+4. Generate terrain noise
+5. Generate dirt and stone layers
+6. Apply desert blocks where needed
+7. Place trees on surface
+8. Generate cave tunnels
+9. Free allocated noise memory
+
+The final result is a world containing:
+
+* Hills and valleys
+* Grasslands
+* A randomly placed desert biome
+* Trees
+* Underground stone layers
+* Cave systems
+
+
+
+Understand Why I used Noise for Random map generation:
+
+Understanding FastNoiseSIMD
+
+What Is Noise?
+
+Noise is a function that generates smooth random values.
+
+Instead of getting completely random numbers like: 0.2 0.9 0.1 0.8 0.3
+
+which would create very jagged terrain, noise produces values that
+change gradually: 0.41 0.43 0.47 0.50 0.48 0.45 0.42
+
+This smoothness is what makes terrain look natural.
+
+Why Use Noise?
+
+Using pure randomness for terrain heights creates unrealistic, jagged
+landscapes. Noise produces smooth transitions, creating natural-looking
+hills and valleys.
+
+Creating a Noise Generator
+
+std::unique_ptr creates an object capable of generating smooth random
+values. Think of it as a machine that produces smooth randomness.
+
+Setting the Seed
+
+The seed determines the pattern. Same seed = same world. Different seed
+= different world.
+
+Noise Types
+
+Perlin Fractal
+
+Creates smooth rolling shapes and is ideal for terrain surfaces.
+
+Simplex Fractal
+
+Produces more organic patterns and is useful for caves, biome maps, and
+ore generation.
+
+Frequency
+
+Frequency controls how fast the noise changes.
+
+Low frequency: - Large hills - Smooth terrain
+
+High frequency: - Small bumps - Rapid terrain variation
+
+In your code: SetFrequency(0.01)
+
+This creates large smooth hills.
+
+Octaves
+
+Octaves add layers of detail.
+
+Think of combining: - Large hills - Medium bumps - Small bumps
+
+More octaves: - More detail - More realism - More CPU usage
+
+Generating Noise Values
+
+FastNoiseSIMD generates arrays of noise values.
+
+For a world width of 900: dirtNoise[0] … dirtNoise[899]
+
+Each value corresponds to one x-coordinate.
+
+Noise Value Range
+
+FastNoiseSIMD returns values from -1.0 to 1.0.
+
+Your code converts them to: 0.0 to 1.0
+
+using:
+
+(value + 1) / 2
+
+which is easier to work with.
+
+How Terrain Height Is Generated
+
+Example:
+
+dirtStart = 200 dirtNoise[x] = 0.75
+
+dirtHeight = 200 - 40 * 0.75 Result = 170
+
+A larger noise value creates a lower terrain height. Different columns
+receive different noise values, producing smooth terrain variation.
+
+Cave Noise Example
+
+If cave generation is enabled:
+
+if (getCaveNoise(x, y) < 0.3) { b.type = Block::air; }
+
+Any location whose noise value is below the threshold becomes air,
+naturally forming cave pockets.
+
+Mental Model
+
+Frequency = size of hills Octaves = amount of detail on those hills Seed
+= which world pattern is generated Noise value = how high or low the
+terrain is at a position
+
+Why FastNoiseSIMD Is Useful
+
+It allows generation of: - Smooth hills - Natural terrain - Organic cave
+systems - Repeatable worlds through seeds - Fast generation for large
+maps
+
+Think of FastNoiseSIMD as a function that answers:
+
+“How much should the terrain go up or down at this position while still
+looking natural?”
+
+
+
+
+
