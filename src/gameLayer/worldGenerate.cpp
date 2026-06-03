@@ -1,3 +1,4 @@
+#include <memory>
 #include <worldGenerate.h>
 #include <blocks.h>
 #include <random>
