@@ -55,7 +55,7 @@ bool updateGame() {
 
 	ClearBackground({ 75,75,150,255 });
 
-	if (IsKeyPressed(KEY_F10)) showImgui = !showImgui;
+	if (IsKeyPressed(KEY_C)) showImgui = !showImgui;
 
 	static float CAMERA_SPEED = 10;
 	if (IsKeyDown(KEY_LEFT)) gameData.camera.target.x -= CAMERA_SPEED * GetFrameTime();
