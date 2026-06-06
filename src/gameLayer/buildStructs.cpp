@@ -2,26 +2,29 @@
 #include <gameMap.h>
 #include <blocks.h>
 
-void buildTree(GameMap& gameMap, int x, int y) {
-	for (int i = 0; i < 5; i++) {
-		gameMap.getBlock(x, y - i).type = Block::woodLog;
-	}
+void buildTree(GameMap& gameMap, int x, int y)
+{
+    int height = 4 + rand() % 4;
 
-	for (int i = -3; i <= 3; i++) {
-		if (i) {
-			gameMap.getBlock(x - i, y - 4).type = Block::leaves;
-		}
-	}
+    // trunk
+    for (int i = 0; i < height; i++) {
+        gameMap.getBlock(x, y - i).type = Block::woodLog;
+    }
 
-	for (int i = -2; i <= 2; i++) {
-		gameMap.getBlock(x - i, y - 5).type = Block::leaves;
-	}
+    int top = y - height;
 
-	for (int i = -1; i <= 1; i++) {
-		gameMap.getBlock(x - i, y - 6).type = Block::leaves;
-	}
-	for (int i = -1; i <= 1; i++) {
-		gameMap.getBlock(x - i, y - 7).type = Block::leaves;
-	}
-	gameMap.getBlock(x, y - 8).type = Block::leaves;
+    // leaves
+    for (int dy = 0; dy < 3; dy++) {
+
+        int radius = 3 - dy;
+
+        for (int dx = -radius; dx <= radius; dx++) {
+
+            if (rand() % 100 < 80) {
+                gameMap.getBlock(x + dx, top - dy).type = Block::leaves;
+            }
+        }
+    }
+
+    gameMap.getBlock(x, top - 3).type = Block::leaves;
 }
