@@ -13,7 +13,12 @@
 
 
 
-
+struct Player {
+    Vector2 position;
+    Vector2 velocity;
+    float speed;
+    Texture2D texture;
+};
 struct GameData {
 	GameMap gameMap;
 	Camera2D camera;
@@ -25,6 +30,7 @@ struct GameData {
 
 	Structure copyStructure;
 	char saveName[100] = {};
+	Player player;
 
 }gameData;
 
@@ -40,6 +46,9 @@ bool initGame() {
 	gameData.camera.target = { 300,177 };
 	gameData.camera.rotation = 0.0f;
 	gameData.camera.zoom = 50.0f;
+	gameData.player.position = { 300, 100 };
+    gameData.player.speed = 5.0f;
+    gameData.player.texture = LoadTexture("resources/player.png");
 
 	return true;
 }
@@ -62,9 +71,17 @@ bool updateGame() {
 	if (IsKeyDown(KEY_RIGHT)) gameData.camera.target.x += CAMERA_SPEED * GetFrameTime();
 	if (IsKeyDown(KEY_UP)) gameData.camera.target.y -= CAMERA_SPEED * GetFrameTime();
 	if (IsKeyDown(KEY_DOWN)) gameData.camera.target.y += CAMERA_SPEED * GetFrameTime();
+	Vector2 dir = {0, 0};
 
-	gameData.camera.target.x = Clamp(gameData.camera.target.x, 0.0f, gameData.gameMap.w - 1);
-	gameData.camera.target.y = Clamp(gameData.camera.target.y, 0.0f, gameData.gameMap.h - 1);
+    if (IsKeyDown(KEY_A)) dir.x -= 1;
+    if (IsKeyDown(KEY_D)) dir.x += 1;
+    if (IsKeyDown(KEY_W)) dir.y -= 1;
+    if (IsKeyDown(KEY_S)) dir.y += 1;
+
+    gameData.player.position.x += dir.x * gameData.player.speed;
+    gameData.player.position.y += dir.y * gameData.player.speed;
+
+	gameData.camera.target = gameData.player.position;
 
 	Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), gameData.camera);
 	int blockX = (int)floor(worldPos.x);
@@ -155,6 +172,12 @@ bool updateGame() {
 		0.f,
 		WHITE
 	);
+	DrawTexture(
+    gameData.player.texture,
+    gameData.player.position.x,
+    gameData.player.position.y,
+    WHITE
+    );
 
 
 	if (showImgui) {
