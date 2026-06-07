@@ -1,4 +1,3 @@
-#include <memory>
 #include <worldGenerate.h>
 #include <blocks.h>
 #include <random>
@@ -7,7 +6,6 @@
 #include <cmath>
 #include <raymath.h>
 #include <buildStructs.h>
-#include <vector>
 
 
 
@@ -39,7 +37,7 @@ void generateWorld(GameMap& gameMap, int seed) {
 	caveNoiseGenerator->SetSeed(seed++);
 
 	dirtNoiseGenerator->SetNoiseType(FastNoiseSIMD::NoiseType::PerlinFractal);
-	dirtNoiseGenerator->SetFractalOctaves(3);
+	dirtNoiseGenerator->SetFractalOctaves(1);
 	dirtNoiseGenerator->SetFrequency(0.01);
 	
 	stoneNoiseGenerator->SetNoiseType(FastNoiseSIMD::NoiseType::PerlinFractal);
@@ -76,18 +74,16 @@ void generateWorld(GameMap& gameMap, int seed) {
 
 
 	int tempX = 0;
-	std::vector<int> surfaceHeight(w);
-    std::vector<bool> desertColumn(w);
 
 	for (int x = 0; x < w; x++) {
-		bool isDesert = false;
-		int dirtHeight = dirtStart + 40 * dirtNoise[x];
-		surfaceHeight[x] = dirtHeight;
-		int stoneHeight = stoneStart + 200 * stoneNoise[x];
-		Block b;
-		float maxDesertHeight = (100.0f / (D * D)) * (x - desertStart) * (x - desertEnd) + dirtStart;
 
-		
+		int dirtHeight = dirtStart - 40 * dirtNoise[x];
+		int stoneHeight = stoneStart - 150 * stoneNoise[x];
+		Block b;
+		float maxDesertHeight = -(100.0f / (D * D)) * (x - desertStart) * (x - desertEnd) + dirtStart;
+
+		// Tree Building
+		bool isTree = getRandomChance(rng, 0.067);
 
 		for (int y = 0; y < h; y++) {
 			
@@ -99,34 +95,41 @@ void generateWorld(GameMap& gameMap, int seed) {
 				dirtType = Block::sand;
 				stoneType = Block::sandStone;
 				grassBlockType = Block::sand;
-				isDesert = true;
 			}
 
 			if (y < dirtHeight) continue;
 
 			if (y == dirtHeight) {
-                b.type = grassBlockType;
-            }
-            else if (y < stoneHeight) {
-                 b.type = dirtType;
-            }
-            else {
-                 b.type = stoneType;
-            }
-			
-			if (getCaveNoise(x, y) < 0.3) {
-				b.type = Block::air;
+				
+				if (isTree && abs(x-tempX) > 6) {
+					buildTree(gameMap, x+1, y);
+					tempX = x;
+				}
+
+				b.type = grassBlockType;
+
 			}
+			else {
+				if (y > dirtHeight) {
+					b.type = dirtType;
+				}
+
+				if (y >= stoneHeight) {
+					b.type = stoneType;
+				}
+			}
+			
+			//if (getCaveNoise(x, y) < 0.3) {
+				//b.type = Block::air;
+			//}
 
 			gameMap.getBlock(x, y) = b;
 		}
-		desertColumn[x] = isDesert;
 	}
-
 
 	for (int i = 0; i < 50; i++) {
 		int startX = getRandomInt(rng, 0, w);
-		int startY = getRandomInt(rng, 200, h-200);
+		int startY = getRandomInt(rng, 200, h);
 
 		int length = getRandomInt(rng, 500, 1500);
 
@@ -142,46 +145,7 @@ void generateWorld(GameMap& gameMap, int seed) {
 	}
 
 
-	// Generate trees
-	for (int i = 0; i < 80; i++) {
-		int x = getRandomInt(rng, 0, w);
-		int y = surfaceHeight[x] - 1;
-		
-		// Don't place trees in desert
-		if (desertColumn[x]) continue;
-		
-		// Don't place trees if too close to boundaries
-		if (y < 50 || y > h - 50) continue;
-		
-		// Check if surface is grass (valid spawn point)
-		if (gameMap.getBlock(x, y).type != Block::grassBlock) continue;
-		
-		// Generate tree trunk
-		int trunkHeight = getRandomInt(rng, 4, 8);
-		for (int ty = 0; ty < trunkHeight; ty++) {
-			if (y - ty >= 0) {
-				gameMap.getBlock(x, y - ty).type = Block::woodLog;
-			}
-		}
-		
-		// Add leaves around trunk top
-		int leafStartY = y - trunkHeight - 2;
-		for (int lx = -3; lx <= 3; lx++) {
-			for (int ly = -3; ly <= 2; ly++) {
-				int leavesX = x + lx;
-				int leavesY = leafStartY + ly;
-				if (leavesX >= 0 && leavesX < w && leavesY >= 0 && leavesY < h) {
-					Block& leafBlock = gameMap.getBlock(leavesX, leavesY);
-					if (leafBlock.type == Block::air) {
-						leafBlock.type = Block::leaves;
-					}
-				}
-			}
-		}
-	}
-
 
 	FastNoiseSIMD::FreeNoiseSet(dirtNoise);
 	FastNoiseSIMD::FreeNoiseSet(stoneNoise);
-	FastNoiseSIMD::FreeNoiseSet(caveNoise);
 }
