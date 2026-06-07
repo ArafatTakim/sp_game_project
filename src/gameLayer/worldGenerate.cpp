@@ -107,17 +107,12 @@ void generateWorld(GameMap& gameMap, int seed) {
 			if (y == dirtHeight) {
                 b.type = grassBlockType;
             }
-			else {
-				if (y == dirtHeight) {
-                    b.type = grassBlockType;
-                }
-                else if (y < stoneHeight) {
-                    b.type = dirtType;
-                }
-                else {
-                    b.type = stoneType;
-                }
-			}
+            else if (y < stoneHeight) {
+                 b.type = dirtType;
+            }
+            else {
+                 b.type = stoneType;
+            }
 			
 			//if (getCaveNoise(x, y) < 0.3) {
 				//b.type = Block::air;
@@ -125,7 +120,9 @@ void generateWorld(GameMap& gameMap, int seed) {
 
 			gameMap.getBlock(x, y) = b;
 		}
+		desertColumn[x] = isDesert;
 	}
+
 
 	for (int i = 0; i < 50; i++) {
 		int startX = getRandomInt(rng, 0, w);
