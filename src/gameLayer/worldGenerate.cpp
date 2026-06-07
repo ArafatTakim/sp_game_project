@@ -7,6 +7,7 @@
 #include <cmath>
 #include <raymath.h>
 #include <buildStructs.h>
+#include <vector>
 
 
 
@@ -75,16 +76,18 @@ void generateWorld(GameMap& gameMap, int seed) {
 
 
 	int tempX = 0;
+	std::vector<int> surfaceHeight(w);
+    std::vector<bool> desertColumn(w);
 
 	for (int x = 0; x < w; x++) {
 		bool isDesert = false;
 		int dirtHeight = dirtStart - 40 * dirtNoise[x];
+		surfaceHeight[x] = dirtHeight;
 		int stoneHeight = stoneStart - 200 * stoneNoise[x];
 		Block b;
 		float maxDesertHeight = -(100.0f / (D * D)) * (x - desertStart) * (x - desertEnd) + dirtStart;
 
-		// Tree Building
-		bool isTree = getRandomChance(rng, 0.067);
+		
 
 		for (int y = 0; y < h; y++) {
 			
@@ -102,24 +105,18 @@ void generateWorld(GameMap& gameMap, int seed) {
 			if (y < dirtHeight) continue;
 
 			if (y == dirtHeight) {
-				
-				if (isTree && abs(x-tempX) > 6 && !isDesert) {
-					buildTree(gameMap, x+1, y);
-					tempX = x;
-					continue;
-				}
-
-				b.type = grassBlockType;
-
-			}
+                b.type = grassBlockType;
+            }
 			else {
-				if (y > dirtHeight) {
-					b.type = dirtType;
-				}
-
-				if (y >= stoneHeight) {
-					b.type = stoneType;
-				}
+				if (y == dirtHeight) {
+                    b.type = grassBlockType;
+                }
+                else if (y < stoneHeight) {
+                    b.type = dirtType;
+                }
+                else {
+                    b.type = stoneType;
+                }
 			}
 			
 			//if (getCaveNoise(x, y) < 0.3) {
