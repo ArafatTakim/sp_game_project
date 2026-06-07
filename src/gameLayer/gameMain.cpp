@@ -46,10 +46,10 @@ bool initGame() {
     gameData.camera.target = { 300, 100 };
     gameData.camera.offset = { GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
     gameData.camera.rotation = 0.0f;
-    gameData.camera.zoom = 0.5f;   // Zoom out to see more world
+    gameData.camera.zoom = 20.0f;   // Zoom out to see more world
 
     gameData.player.position = { 300, 100 };
-    gameData.player.speed = 3.0f;
+    gameData.player.speed = 0.5f;
     gameData.player.texture = LoadTexture("resources/player.png");
 
     return true;
