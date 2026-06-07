@@ -1,6 +1,7 @@
 #include <buildStructs.h>
 #include <gameMap.h>
 #include <blocks.h>
+#include <cstdlib>
 
 void buildTree(GameMap& gameMap, int x, int y)
 {
