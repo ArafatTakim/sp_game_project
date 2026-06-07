@@ -81,11 +81,11 @@ void generateWorld(GameMap& gameMap, int seed) {
 
 	for (int x = 0; x < w; x++) {
 		bool isDesert = false;
-		int dirtHeight = dirtStart - 40 * dirtNoise[x];
+		int dirtHeight = dirtStart + 40 * dirtNoise[x];
 		surfaceHeight[x] = dirtHeight;
-		int stoneHeight = stoneStart - 200 * stoneNoise[x];
+		int stoneHeight = stoneStart + 200 * stoneNoise[x];
 		Block b;
-		float maxDesertHeight = -(100.0f / (D * D)) * (x - desertStart) * (x - desertEnd) + dirtStart;
+		float maxDesertHeight = (100.0f / (D * D)) * (x - desertStart) * (x - desertEnd) + dirtStart;
 
 		
 
@@ -114,9 +114,9 @@ void generateWorld(GameMap& gameMap, int seed) {
                  b.type = stoneType;
             }
 			
-			//if (getCaveNoise(x, y) < 0.3) {
-				//b.type = Block::air;
-			//}
+			if (getCaveNoise(x, y) < 0.3) {
+				b.type = Block::air;
+			}
 
 			gameMap.getBlock(x, y) = b;
 		}
@@ -142,7 +142,46 @@ void generateWorld(GameMap& gameMap, int seed) {
 	}
 
 
+	// Generate trees
+	for (int i = 0; i < 80; i++) {
+		int x = getRandomInt(rng, 0, w);
+		int y = surfaceHeight[x] - 1;
+		
+		// Don't place trees in desert
+		if (desertColumn[x]) continue;
+		
+		// Don't place trees if too close to boundaries
+		if (y < 50 || y > h - 50) continue;
+		
+		// Check if surface is grass (valid spawn point)
+		if (gameMap.getBlock(x, y).type != Block::grassBlock) continue;
+		
+		// Generate tree trunk
+		int trunkHeight = getRandomInt(rng, 4, 8);
+		for (int ty = 0; ty < trunkHeight; ty++) {
+			if (y - ty >= 0) {
+				gameMap.getBlock(x, y - ty).type = Block::woodLog;
+			}
+		}
+		
+		// Add leaves around trunk top
+		int leafStartY = y - trunkHeight - 2;
+		for (int lx = -3; lx <= 3; lx++) {
+			for (int ly = -3; ly <= 2; ly++) {
+				int leavesX = x + lx;
+				int leavesY = leafStartY + ly;
+				if (leavesX >= 0 && leavesX < w && leavesY >= 0 && leavesY < h) {
+					Block& leafBlock = gameMap.getBlock(leavesX, leavesY);
+					if (leafBlock.type == Block::air) {
+						leafBlock.type = Block::leaves;
+					}
+				}
+			}
+		}
+	}
+
 
 	FastNoiseSIMD::FreeNoiseSet(dirtNoise);
 	FastNoiseSIMD::FreeNoiseSet(stoneNoise);
+	FastNoiseSIMD::FreeNoiseSet(caveNoise);
 }
