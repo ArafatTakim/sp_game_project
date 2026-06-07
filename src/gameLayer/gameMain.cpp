@@ -75,8 +75,8 @@ bool updateGame() {
 
     if (IsKeyDown(KEY_LEFT)) dir.x -= 1;
     if (IsKeyDown(KEY_RIGHT)) dir.x += 1;
-    if (IsKeyDown(KEY_DOWN)) dir.y -= 1;
-    if (IsKeyDown(KEY_UP)) dir.y += 1;
+    if (IsKeyDown(KEY_UP)) dir.y -= 1;
+    if (IsKeyDown(KEY_DOWN)) dir.y += 1;
 
     gameData.player.position.x += dir.x * gameData.player.speed;
     gameData.player.position.y += dir.y * gameData.player.speed;
