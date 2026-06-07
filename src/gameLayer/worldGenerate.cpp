@@ -103,7 +103,7 @@ void generateWorld(GameMap& gameMap, int seed) {
 			if (y == dirtHeight) {
 				
 				if (isTree && abs(x-tempX) > 6) {
-					buildTree(gameMap, x+1, y);
+					Structures::buildTree(gameMap, x+1, y);
 					tempX = x;
 				}
 
