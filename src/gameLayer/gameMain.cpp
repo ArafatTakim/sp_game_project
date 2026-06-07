@@ -73,10 +73,10 @@ bool updateGame() {
     // ================= PLAYER MOVEMENT =================
     Vector2 dir = {0, 0};
 
-    if (IsKeyDown(KEY_A)) dir.x -= 1;
-    if (IsKeyDown(KEY_D)) dir.x += 1;
-    if (IsKeyDown(KEY_W)) dir.y -= 1;
-    if (IsKeyDown(KEY_S)) dir.y += 1;
+    if (IsKeyDown(KEY_LEFT)) dir.x -= 1;
+    if (IsKeyDown(KEY_RIGHT)) dir.x += 1;
+    if (IsKeyDown(KEY_UP)) dir.y -= 1;
+    if (IsKeyDown(KEY_DOWN)) dir.y += 1;
 
     gameData.player.position.x += dir.x * gameData.player.speed;
     gameData.player.position.y += dir.y * gameData.player.speed;
