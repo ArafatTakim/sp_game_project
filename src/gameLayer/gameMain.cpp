@@ -73,13 +73,17 @@ bool updateGame() {
     // ================= PLAYER MOVEMENT =================
     Vector2 dir = {0, 0};
 
-    if (IsKeyDown(KEY_LEFT)) dir.x -= 1;
-    if (IsKeyDown(KEY_RIGHT)) dir.x += 1;
-    if (IsKeyDown(KEY_UP)) dir.y -= 1;
-    if (IsKeyDown(KEY_DOWN)) dir.y += 1;
+    if (IsKeyDown(KEY_A)) dir.x -= 1;
+    if (IsKeyDown(KEY_D)) dir.x += 1;
+    if (IsKeyDown(KEY_W)) dir.y -= 1;
+    if (IsKeyDown(KEY_S)) dir.y += 1;
 
     gameData.player.position.x += dir.x * gameData.player.speed;
     gameData.player.position.y += dir.y * gameData.player.speed;
+
+    // Clamp player position to map bounds
+    gameData.player.position.x = Clamp(gameData.player.position.x, 0.0f, (float)gameData.gameMap.w);
+    gameData.player.position.y = Clamp(gameData.player.position.y, 0.0f, (float)gameData.gameMap.h);
 
     // ================= CAMERA FOLLOW =================
     gameData.camera.target = gameData.player.position;
