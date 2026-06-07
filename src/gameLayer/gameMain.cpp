@@ -46,7 +46,7 @@ bool initGame() {
     gameData.camera.target = { 300, 100 };
     gameData.camera.offset = { GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
     gameData.camera.rotation = 0.0f;
-    gameData.camera.zoom = 2.0f;   // IMPORTANT FIX
+    gameData.camera.zoom = 0.5f;   // Zoom out to see more world
 
     gameData.player.position = { 300, 100 };
     gameData.player.speed = 3.0f;
@@ -201,7 +201,7 @@ bool updateGame() {
 
         ImGui::Begin("Game control");
 
-        ImGui::SliderFloat("Camera zoom:", &gameData.camera.zoom, 1, 10);
+        ImGui::SliderFloat("Camera zoom:", &gameData.camera.zoom, 0.1f, 10);
         ImGui::SliderFloat("Player speed:", &gameData.player.speed, 1, 10);
 
         ImGui::InputText("File name", gameData.saveName, sizeof(gameData.saveName));
