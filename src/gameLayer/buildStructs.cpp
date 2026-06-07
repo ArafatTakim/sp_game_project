@@ -2,7 +2,9 @@
 #include <gameMap.h>
 #include <blocks.h>
 #include <cstdlib>
-namespace structure{
+
+namespace Structures {
+
 void buildTree(GameMap& gameMap, int x, int y)
 {
     int height = 4 + rand() % 4;
@@ -26,7 +28,9 @@ void buildTree(GameMap& gameMap, int x, int y)
             }
         }
     }
-}
 
+    // top leaf (IMPORTANT: inside function)
     gameMap.getBlock(x, top - 3).type = Block::leaves;
 }
+
+} // namespace Structures
