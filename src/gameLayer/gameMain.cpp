@@ -50,7 +50,7 @@ bool initGame() {
 
     gameData.player.position = { 300, 100 };
     gameData.player.speed = 0.5f;
-    gameData.player.texture = LoadTexture("resources/player.png");
+    gameData.player.texture = assetManager.player;
 
     return true;
 }
