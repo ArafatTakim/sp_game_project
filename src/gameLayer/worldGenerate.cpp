@@ -106,6 +106,7 @@ void generateWorld(GameMap& gameMap, int seed) {
 				if (isTree && abs(x-tempX) > 6 && !isDesert) {
 					buildTree(gameMap, x+1, y);
 					tempX = x;
+					continue;
 				}
 
 				b.type = grassBlockType;
