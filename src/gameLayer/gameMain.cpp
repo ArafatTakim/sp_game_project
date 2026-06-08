@@ -70,7 +70,7 @@ bool updateGame() {
         showImgui = !showImgui;
     }
 
-    // ================= PLAYER MOVEMENT =================
+    // ================= PLAYER MOVEMENT WITH COLLISION =================
     Vector2 dir = {0, 0};
 
     if (IsKeyDown(KEY_LEFT)) dir.x -= 1;
@@ -78,12 +78,24 @@ bool updateGame() {
     if (IsKeyDown(KEY_UP)) dir.y -= 1;
     if (IsKeyDown(KEY_DOWN)) dir.y += 1;
 
-    gameData.player.position.x += dir.x * gameData.player.speed;
-    gameData.player.position.y += dir.y * gameData.player.speed;
+    // Calculate new position
+    Vector2 newPos = gameData.player.position;
+    newPos.x += dir.x * gameData.player.speed;
+    newPos.y += dir.y * gameData.player.speed;
 
     // Clamp player position to map bounds
-    gameData.player.position.x = Clamp(gameData.player.position.x, 0.0f, (float)gameData.gameMap.w);
-    gameData.player.position.y = Clamp(gameData.player.position.y, 0.0f, (float)gameData.gameMap.h);
+    newPos.x = Clamp(newPos.x, 0.0f, (float)gameData.gameMap.w - 1);
+    newPos.y = Clamp(newPos.y, 0.0f, (float)gameData.gameMap.h - 1);
+
+    // Check collision with block at new position
+    int playerBlockX = (int)floor(newPos.x);
+    int playerBlockY = (int)floor(newPos.y);
+    auto& blockAtNewPos = gameData.gameMap.getBlock(playerBlockX, playerBlockY);
+
+    // Only move if the block is air
+    if (blockAtNewPos.type == Block::air) {
+        gameData.player.position = newPos;
+    }
 
     // ================= CAMERA FOLLOW =================
     gameData.camera.target = gameData.player.position;
@@ -164,12 +176,12 @@ bool updateGame() {
         }
     }
 
-    // PLAYER DRAW (FIXED)
+    // PLAYER DRAW (FIXED) - draw after blocks so it appears on top
     DrawTextureEx(
         gameData.player.texture,
         gameData.player.position,
         0.0f,
-        0.1f,
+        0.05f,
         WHITE
     );
 
