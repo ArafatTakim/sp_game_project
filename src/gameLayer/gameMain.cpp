@@ -169,7 +169,7 @@ bool updateGame() {
         gameData.player.texture,
         gameData.player.position,
         0.0f,
-        0.1f,
+        0.05f,
         WHITE
     );
 
