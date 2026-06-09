@@ -1,6 +1,13 @@
-#include <gameMap.h>
+#ifndef BUILD_STRUCTS_H
+#define BUILD_STRUCTS_H
 
+#include "gameMap.h"
 
-void buildTree(GameMap& gameMap, int x, int y);
+namespace Structures {
 
-void buildHouse(GameMap& gameMap, int x, int y);
+    void buildTree(GameMap& gameMap, int x, int y);
+    void buildHouse(GameMap& gameMap, int x, int y);
+
+}
+
+#endif

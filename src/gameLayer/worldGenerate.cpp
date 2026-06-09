@@ -6,6 +6,7 @@
 #include <cmath>
 #include <raymath.h>
 #include <buildStructs.h>
+#include <memory>
 
 
 
@@ -37,7 +38,7 @@ void generateWorld(GameMap& gameMap, int seed) {
 	caveNoiseGenerator->SetSeed(seed++);
 
 	dirtNoiseGenerator->SetNoiseType(FastNoiseSIMD::NoiseType::PerlinFractal);
-	dirtNoiseGenerator->SetFractalOctaves(3);
+	dirtNoiseGenerator->SetFractalOctaves(1);
 	dirtNoiseGenerator->SetFrequency(0.01);
 	
 	stoneNoiseGenerator->SetNoiseType(FastNoiseSIMD::NoiseType::PerlinFractal);
@@ -76,9 +77,9 @@ void generateWorld(GameMap& gameMap, int seed) {
 	int tempX = 0;
 
 	for (int x = 0; x < w; x++) {
-		bool isDesert = false;
+
 		int dirtHeight = dirtStart - 40 * dirtNoise[x];
-		int stoneHeight = stoneStart - 200 * stoneNoise[x];
+		int stoneHeight = stoneStart - 150 * stoneNoise[x];
 		Block b;
 		float maxDesertHeight = -(100.0f / (D * D)) * (x - desertStart) * (x - desertEnd) + dirtStart;
 
@@ -95,15 +96,14 @@ void generateWorld(GameMap& gameMap, int seed) {
 				dirtType = Block::sand;
 				stoneType = Block::sandStone;
 				grassBlockType = Block::sand;
-				isDesert = true;
 			}
 
 			if (y < dirtHeight) continue;
 
 			if (y == dirtHeight) {
 				
-				if (isTree && abs(x-tempX) > 6 && !isDesert) {
-					buildTree(gameMap, x+1, y);
+				if (isTree && abs(x-tempX) > 6) {
+					Structures::buildTree(gameMap, x+1, y);
 					tempX = x;
 				}
 
@@ -130,7 +130,7 @@ void generateWorld(GameMap& gameMap, int seed) {
 
 	for (int i = 0; i < 50; i++) {
 		int startX = getRandomInt(rng, 0, w);
-		int startY = getRandomInt(rng, 200, h-200);
+		int startY = getRandomInt(rng, 200, h);
 
 		int length = getRandomInt(rng, 500, 1500);
 
