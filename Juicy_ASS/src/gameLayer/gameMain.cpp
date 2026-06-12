@@ -9,6 +9,7 @@
 #include <structure.h>
 #include <saveMap.h>
 #include <physics.h>
+#include <animal.h>
 
 struct GameData {
 	Camera2D camera;
@@ -28,6 +29,8 @@ struct GameData {
 
 	PhysicalEntity player;
 
+	AnimalManager animalManager;
+
 }gameData;
 
 AssetManager assetManager;
@@ -46,6 +49,52 @@ bool initGame() {
 	generateWorld(gameData.gameMap, 69);
 
 	gameData.player.transform = { {100.7f,200.5f}, 0.8f, 1.8f };
+
+	// Initialize animal textures
+	Texture2D slimeTexture = LoadTexture(RESOURCES_PATH "slime.png");
+	Texture2D blueSlimeTexture = LoadTexture(RESOURCES_PATH "blueslime.png");
+	Texture2D smallBlueSlimeTexture = LoadTexture(RESOURCES_PATH "smallblueslime.png");
+	Texture2D iceSlimeTexture = LoadTexture(RESOURCES_PATH "iceslime.png");
+	Texture2D mummyTexture = LoadTexture(RESOURCES_PATH "mumy.png");
+	Texture2D zombieTexture = LoadTexture(RESOURCES_PATH "zombie.png");
+	Texture2D zombieEskimoTexture = LoadTexture(RESOURCES_PATH "zombie_eskimo.png");
+	Texture2D evilEyeTexture = LoadTexture(RESOURCES_PATH "evilEye.png");
+
+	// Spawn random animals across the world
+	for (int i = 0; i < 20; i++) {
+		int spawnX = rand() % gameData.w;
+		int spawnY = rand() % (gameData.h - 100) + 50;
+
+		int animalType = rand() % ANIMAL_COUNT;
+		Vector2 spawnPos = { (float)spawnX, (float)spawnY };
+
+		switch (animalType) {
+		case SLIME:
+			gameData.animalManager.addAnimal(spawnPos, SLIME, slimeTexture);
+			break;
+		case BLUE_SLIME:
+			gameData.animalManager.addAnimal(spawnPos, BLUE_SLIME, blueSlimeTexture);
+			break;
+		case SMALL_BLUE_SLIME:
+			gameData.animalManager.addAnimal(spawnPos, SMALL_BLUE_SLIME, smallBlueSlimeTexture);
+			break;
+		case ICE_SLIME:
+			gameData.animalManager.addAnimal(spawnPos, ICE_SLIME, iceSlimeTexture);
+			break;
+		case MUMMY:
+			gameData.animalManager.addAnimal(spawnPos, MUMMY, mummyTexture);
+			break;
+		case ZOMBIE:
+			gameData.animalManager.addAnimal(spawnPos, ZOMBIE, zombieTexture);
+			break;
+		case ZOMBIE_ESKIMO:
+			gameData.animalManager.addAnimal(spawnPos, ZOMBIE_ESKIMO, zombieEskimoTexture);
+			break;
+		case EVIL_EYE:
+			gameData.animalManager.addAnimal(spawnPos, EVIL_EYE, evilEyeTexture);
+			break;
+		}
+	}
 
 	return true;
 }
@@ -89,6 +138,8 @@ bool updateGame() {
 	gameData.camera.target = {gameData.player.transform.pos.x ,gameData.player.transform.pos.y - up};
 	gameData.player.updateFinal();
 
+	// Update animals
+	gameData.animalManager.updateAll(deltaTime);
 
 	Vector2 topLeftView = GetScreenToWorld2D({ 0,0 }, gameData.camera);
 	Vector2 bottomRightView = GetScreenToWorld2D({ (float)GetScreenWidth(), (float)GetScreenHeight() }, gameData.camera);
@@ -203,6 +254,9 @@ bool updateGame() {
 		}
 	}
 
+	// Draw animals
+	gameData.animalManager.drawAll();
+
 	if (showimgui) {
 		Rectangle rect;
 		rect.x = gameData.selectionStart.x;
@@ -296,5 +350,6 @@ bool updateGame() {
 }
 
 bool closeGame() {
+	gameData.animalManager.clear();
 	return true;
 }
