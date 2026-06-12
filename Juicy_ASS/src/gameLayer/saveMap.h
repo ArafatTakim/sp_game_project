@@ -1,0 +1,7 @@
+#pragma once
+#include <vector>
+#include <block.h>
+#include <fstream>
+
+bool saveBlockDataToFile(std::vector<Block> blocks, int w, int h, const char* filename);
+bool loadBlockDataFromFile(std::vector<Block>& blocks, int& w, int& h, const char* filename);
