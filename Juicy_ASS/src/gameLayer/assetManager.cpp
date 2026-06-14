@@ -7,4 +7,5 @@ void AssetManager::loadAll() {
 	texturesbg = LoadTexture(RESOURCES_PATH "texturesWithBackgroundVersion.png");
 	frame = LoadTexture(RESOURCES_PATH "frame.png");
 	player = LoadTexture(RESOURCES_PATH "player.png");
+	blueSlime = LoadTexture(RESOURCES_PATH "blueslime.png");
 }
