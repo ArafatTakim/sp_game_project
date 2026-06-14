@@ -1,16 +1,13 @@
 #include "blueslime.h"
 
-void UpdateBlueSlime(
-    BlueSlime& slime,
-    GameMap& map,
-    float dt)
+void BlueSlime::UpdateBlueSlime(GameMap& map,float dt)
 {
-    slime.body.updateForces(dt);
+    body.updateForces(dt);
 
-    slime.body.checkCollisionOnce(
+    body.checkCollisionOnce(
         map,
-        slime.body.transform.pos
+        body.transform.pos
     );
 
-    slime.body.updateFinal();
+    body.updateFinal();
 }

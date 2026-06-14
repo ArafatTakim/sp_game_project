@@ -114,8 +114,7 @@ bool updateGame() {
 	Vector2 cursorPos = GetScreenToWorld2D(GetMousePosition(), gameData.camera);
 	int blockX = cursorPos.x;
 	int blockY = cursorPos.y;
-	UpdateBlueSlime(
-    gameData.slime,
+	gameData.slime.UpdateBlueSlime(
     gameData.gameMap,
     deltaTime
     );
@@ -248,8 +247,8 @@ bool updateGame() {
     {
         0,
         0,
-        (float)assetManager.blueSlime.width,
-        (float)assetManager.blueSlime.height
+        48,
+        50
     },
     {
         gameData.slime.body.transform.getTopLeft().x,
