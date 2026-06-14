@@ -9,6 +9,7 @@
 #include <structure.h>
 #include <saveMap.h>
 #include <physics.h>
+#include <blueslime.h>
 
 struct GameData {
 	Camera2D camera;
@@ -27,6 +28,7 @@ struct GameData {
 	char saveName[100] = {};
 
 	PhysicalEntity player;
+	BlueSlime slime;
 
 }gameData;
 
@@ -46,6 +48,12 @@ bool initGame() {
 	generateWorld(gameData.gameMap, 69);
 
 	gameData.player.transform = { {100.7f,200.5f}, 0.8f, 1.8f };
+	gameData.slime.body.transform =
+   {
+    {120.f, 200.f},
+    0.8f,
+    0.8f
+   };
 
 	return true;
 }
@@ -106,6 +114,11 @@ bool updateGame() {
 	Vector2 cursorPos = GetScreenToWorld2D(GetMousePosition(), gameData.camera);
 	int blockX = cursorPos.x;
 	int blockY = cursorPos.y;
+	UpdateBlueSlime(
+    gameData.slime,
+    gameData.gameMap,
+    deltaTime
+    );
 
 
 	if (!showimgui) {
@@ -230,6 +243,24 @@ bool updateGame() {
 		0.f,
 		WHITE
 	);
+	DrawTexturePro(
+    assetManager.blueSlime,
+    {
+        0,
+        0,
+        (float)assetManager.blueSlime.width,
+        (float)assetManager.blueSlime.height
+    },
+    {
+        gameData.slime.body.transform.getTopLeft().x,
+        gameData.slime.body.transform.getTopLeft().y,
+        0.8f,
+        0.8f
+    },
+    {0,0},
+    0,
+    WHITE
+    );
 
 	DrawRectangleLinesEx(gameData.player.transform.getAABB(), 0.1, BLANK); //player aabb
 
