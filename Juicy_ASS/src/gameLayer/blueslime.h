@@ -10,3 +10,4 @@ struct BlueSlime
 
     bool active = true;
 };
+void UpdateBlueSlime(BlueSlime& slime, GameMap& map, float dt);
